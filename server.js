@@ -25,6 +25,21 @@ MongoClient.connect(uri, (err, db) => {
 		res.end();
 	});
 	
+	app.param('removeCount', (req, res, next, count) => {
+		res.send(count + ' van a ser eliminados.');
+		for (i = 0; i < parseInt(count); i++) {
+			db.collection('tracker').deleteOne({}, (err, result) => {
+				if (err) {
+					throw err;
+				}
+			});
+		}
+	});
+	
+	app.get('/delete/:removeCount', (req, res) => {
+		res.end();
+	});
+	
 	app.listen(3000, () => {
 		console.log('El servidor esta corriendo sobre http://localhost:3000');
 	});
