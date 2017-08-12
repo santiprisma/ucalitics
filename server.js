@@ -28,7 +28,7 @@ MongoClient.connect(uri, (err, db) => {
 	app.param('removeCount', (req, res, next, count) => {
 		res.send(count + ' van a ser eliminados.');
 		for (i = 0; i < parseInt(count); i++) {
-			db.collection('tracker').deleteOne({}, (err, result) => {
+			db.collection('tracker').deleteOne({}, (err, obj) => {
 				if (err) {
 					throw err;
 				}
@@ -37,6 +37,28 @@ MongoClient.connect(uri, (err, db) => {
 	});
 	
 	app.get('/delete/:removeCount', (req, res) => {
+		res.end();
+	});
+	
+	app.param(['start', 'end'], (req, res, next, value)  => {
+		let start = req.params.start;
+		let end = req.params.end;
+		
+		db.collection('tracker').deleteMany({
+			'timestamp': {
+				$gt: start,
+				$lt: end
+			}
+		}, (err, obj) => {
+			if (err) {
+				throw err;
+			}
+			
+			res.send(obj.result.n + " registros eliminados.");
+		});
+	});
+
+	app.get('/deleteBetween/:start/:end', (req, res) => {
 		res.end();
 	});
 	
