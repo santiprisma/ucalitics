@@ -62,6 +62,70 @@ MongoClient.connect(uri, (err, db) => {
 		res.end();
 	});
 	
+	app.get('/report', (req, res) => {		
+		let result = [];
+		
+		db.collection('tracker').aggregate([
+		{
+			'$match': {
+				'type': {
+					$ne: null
+				}
+			}
+		},
+		{
+			'$group': {
+				_id: '$type',
+				count: {
+					$sum:1
+				}
+			}
+		},
+		{
+			$sort: {
+				'count': -1
+			}
+		}], (err, obj) => {
+			if (err) {
+				throw err;
+			}
+			
+			console.log(obj[0]);
+		});
+		
+		/*
+		db.collection('tracker').aggregate([
+		{
+			'$bucket': {
+				'groupBy': '$timestamp',
+				'boundaries': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+				'output': {
+					'count': { $sum: 1 },
+					'horas': { $push: '$timestamp'}
+				}
+			}
+		}], (err, obj) => {
+			if (err) {
+				throw err;
+			}
+			
+			console.log(obj);
+			return obj;
+		});*/
+		
+		let clicks = db.collection('tracker').find({
+			'y': {
+				$gt: 540
+			}
+		}).count((err, count) => {
+			if (err) {
+				throw err;
+			}
+			
+			console.log(count);
+		});
+	});
+	
 	app.listen(3000, () => {
 		console.log('El servidor esta corriendo sobre http://localhost:3000');
 	});
